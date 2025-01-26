@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>她安计划 - 社区</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="community-page.css">
+</head>
+<body>
+    <header>
+        <nav class="community-nav">
+            <a href="index.html" class="back-btn">← 返回首页</a>
+            <h1>社区交流</h1>
+        </nav>
+    </header>
+
+    <main class="community-main">
+        <div class="community-container">
+            <!-- 发布新评论区域 -->
+            <div class="post-comment-section">
+                <form id="newCommentForm" class="new-comment-form">
+                    <textarea placeholder="分享你的想法..." required></textarea>
+                    <div class="form-footer">
+                        <div class="upload-images">
+                            <label for="imageUpload" class="upload-btn">
+                                <i class="icon-image">📷</i> 添加图片
+                            </label>
+                            <input type="file" id="imageUpload" accept="image/*" multiple hidden>
+                        </div>
+                        <button type="submit">发布</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 评论过滤和排序 -->
+            <div class="comments-filter">
+                <div class="filter-options">
+                    <select id="sortComments">
+                        <option value="latest">最新发布</option>
+                        <option value="popular">最受欢迎</option>
+                    </select>
+                    <input type="text" placeholder="搜索评论..." id="searchComments">
+                </div>
+            </div>
+
+            <!-- 评论列表 -->
+            <div class="comments-section">
+                <!-- 评论将通过JavaScript动态添加 -->
+            </div>
+        </div>
+
+        <!-- 右侧信息栏 -->
+        <aside class="community-sidebar">
+            <div class="community-stats">
+                <h3>社区数据</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-number">1,234</span>
+                        <span class="stat-label">成员</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">567</span>
+                        <span class="stat-label">今日发帖</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="trending-topics">
+                <h3>热门话题</h3>
+                <div class="topics-list">
+                    <a href="#" class="topic-item">#防身技巧</a>
+                    <a href="#" class="topic-item">#安全意识</a>
+                    <a href="#" class="topic-item">#经验分享</a>
+                </div>
+            </div>
+        </aside>
+    </main>
+</body>
+</html> 
