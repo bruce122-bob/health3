@@ -65,13 +65,6 @@ class Slideshow {
 
 // 初始化轮播
 const slideshow = new Slideshow(document.getElementById('slideshowContainer'));
-
-// 示例：添加图片（您需要替换为实际的图片URL）
-// slideshow.addImage('path/to/image1.jpg');
-// slideshow.addImage('path/to/image2.jpg');
-// slideshow.addImage('path/to/image3.jpg');
-
-// 开始轮播
 slideshow.start();
 
 // 防身技巧展示功能

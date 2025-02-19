@@ -1,0 +1,32 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": "auth != null",
+    "messages": {
+      ".read": true,
+      ".write": "auth != null",
+      "$messageId": {
+        ".validate": "newData.hasChildren(['text', 'userId', 'userEmail', 'timestamp'])",
+        "likes": {
+          "$uid": {
+            ".validate": "$uid === auth.uid"
+          }
+        }
+      }
+    },
+    "onlineUsers": {
+      ".read": true,
+      ".write": "auth != null",
+      "$uid": {
+        ".validate": "newData.hasChildren(['email', 'lastSeen'])"
+      }
+    },
+    "counters": {
+      ".read": true,
+      "totalMessages": {
+        ".write": true,
+        ".validate": "newData.isNumber()"
+      }
+    }
+  }
+} 

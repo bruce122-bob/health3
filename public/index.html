@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>她安计划</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <!-- 添加Leaflet地图库 -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -20,21 +24,109 @@
     <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 </head>
 <body>
+    <!-- 认证容器 - 移到 body 的最前面 -->
+    <div class="auth-container">
+        <div class="auth-buttons" style="display: flex;">
+            <button onclick="document.getElementById('loginModal').style.display='block'" class="login-btn">登录</button>
+            <button onclick="document.getElementById('registerModal').style.display='block'" class="register-btn">注册</button>
+            <button onclick="document.getElementById('accountSettingsModal').style.display='block'" class="settings-btn">账号设置</button>
+        </div>
+        <div class="user-info" style="display: none;">
+            <span class="user-email"></span>
+            <button onclick="logoutUser()">退出</button>
+        </div>
+    </div>
+
     <header>
         <h1>她安计划</h1>
     </header>
 
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="this.parentElement.parentElement.style.display='none'">&times;</span>
+            <h2>登录</h2>
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="邮箱" required>
+                <input type="password" id="loginPassword" placeholder="密码" required>
+                <button type="submit">登录</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="this.parentElement.parentElement.style.display='none'">&times;</span>
+            <h2>注册</h2>
+            <form id="registerForm">
+                <input type="email" id="registerEmail" placeholder="邮箱" required>
+                <input type="password" id="registerPassword" placeholder="密码" required>
+                <button type="submit">注册</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 账号设置模态框 -->
+    <div id="accountSettingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('accountSettingsModal')">&times;</span>
+            <h2>账号设置</h2>
+            <form id="accountSettingsForm">
+                <input type="text" id="userName" placeholder="用户名" required>
+                <button type="submit">保存更改</button>
+            </form>
+        </div>
+    </div>
+
     <div class="main-content">
         <div class="sidebar">
+            <!-- 添加社区入口 -->
+            <div class="community-section">
+                <h2>交流社区</h2>
+                <div class="community-preview">
+                    <p>加入我们的社区，分享经验、交流想法</p>
+                    <div class="community-stats">
+                        <!-- 移除在线人数和总发言数显示 -->
+                        <!-- <span class="online-count">在线：<span id="onlineCount">0</span></span> -->
+                        <!-- <span class="message-count">总发言：<span id="messageCount">0</span></span> -->
+                    </div>
+                    <a href="community.html" class="enter-community-btn">
+                        进入社区
+                        <span class="arrow">→</span>
+                    </a>
+                </div>
+            </div>
+
             <div class="resource-section">
                 <h2>资料区</h2>
                 <div class="resource-content" id="resourceContent">
+                    <!-- 添加资料展示区域 -->
+                    <div class="resource-item">
+                        <h3>资料展示</h3>
+                        <div class="articles-container">
+                            <div class="articles-filter">
+                                <select id="platformFilter">
+                                    <option value="all">全部平台</option>
+                                    <option value="xiaohongshu">小红书</option>
+                                    <option value="douyin">抖音</option>
+                                    <option value="weibo">微博</option>
+                                </select>
+                                <span class="last-update" id="lastUpdateTime"></span>
+                            </div>
+                            <div class="articles-list" id="articlesList">
+                                <!-- 文章将通过JavaScript动态添加 -->
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="resource-item">
                         <h3>安全知识</h3>
                         <ul>
                             <!-- 这里可以添加其他安全知识内容 -->
                         </ul>
                     </div>
+
                     <div class="resource-item">
                         <h3>紧急联系</h3>
                         <div class="emergency-contacts">
@@ -46,28 +138,12 @@
                                     <option value="uk">英国</option>
                                     <option value="japan">日本</option>
                                     <option value="korea">韩国</option>
-                                    <!-- 可以继续添加更多国家 -->
                                 </select>
                             </div>
                             <div class="contact-list" id="contactList">
                                 <div class="contact-card template">
                                     <h4 class="service-type"></h4>
                                     <p class="phone-number"></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="resource-item">
-                        <h3>交流社区</h3>
-                        <div class="community-preview">
-                            <button class="open-community-btn" id="openCommunityBtn">
-                                <i class="icon-community">👥</i>
-                                <span>进入社区</span>
-                            </button>
-                            <div class="recent-comments">
-                                <h4>最新讨论</h4>
-                                <div class="preview-comments" id="previewComments">
-                                    <!-- 最新评论将通过JavaScript动态添加 -->
                                 </div>
                             </div>
                         </div>
@@ -99,30 +175,6 @@
 
         <div class="display-area">
             <div class="content-wrapper">
-                <!-- 资料展示区域 -->
-                <div class="articles-section">
-                    <div class="slideshow-container" id="slideshowContainer">
-                        <div class="slideshow-title">
-                            <h2>资料展示</h2>
-                        </div>
-                        <div class="articles-container">
-                            <div class="articles-filter">
-                                <select id="platformFilter">
-                                    <option value="all">全部平台</option>
-                                    <option value="xiaohongshu">小红书</option>
-                                    <option value="douyin">抖音</option>
-                                    <option value="weibo">微博</option>
-                                </select>
-                                <span class="last-update" id="lastUpdateTime"></span>
-                            </div>
-                            
-                            <div class="articles-list" id="articlesList">
-                                <!-- 文章将通过JavaScript动态添加 -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
                 <!-- 地图标记区域 -->
                 <div class="map-section">
                     <div class="map-container">
@@ -130,49 +182,9 @@
                         <div id="safetyMap"></div>
                         <button id="addMarker" class="add-marker-btn">添加标记</button>
                     </div>
-                    
-                    <!-- 标记表单 -->
-                    <div id="markerForm" class="marker-form">
-                        <h3>添加地点标记</h3>
-                        <form id="safetyMarkerForm">
-                            <div class="form-group">
-                                <label for="markerTitle">标题:</label>
-                                <input type="text" id="markerTitle" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="markerType">类型:</label>
-                                <select id="markerType" required>
-                                    <option value="safe">安全地点</option>
-                                    <option value="warning">危险警告</option>
-                                    <option value="help">求助信息</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="markerDescription">描述:</label>
-                                <textarea id="markerDescription" required></textarea>
-                            </div>
-                            <div class="form-actions">
-                                <button type="submit">提交</button>
-                                <button type="button" class="cancel-btn">取消</button>
-                            </div>
-                        </form>
-                    </div>
                 </div>
             </div>
             
-            <div class="article-preview-modal" id="articlePreviewModal">
-                <div class="modal-content">
-                    <span class="close-preview">&times;</span>
-                    <div class="article-full-content">
-                        <div class="article-images-slider" id="articleImagesSlider">
-                            <!-- 图片轮播将通过JavaScript添加 -->
-                        </div>
-                        <div class="article-text" id="articleText"></div>
-                        <div class="article-source"></div>
-                    </div>
-                </div>
-            </div>
-
             <!-- 启发点区域 -->
             <div class="inspiration-section">
                 <h2>启发点</h2>
@@ -207,114 +219,14 @@
         <p>Bruce Sarah</p>
     </footer>
 
+    <!-- 先加载 auth.js -->
+    <script src="auth.js"></script>
+    
+    <!-- 然后加载其他脚本 -->
     <script src="script.js"></script>
     <script src="emergency-contacts.js"></script>
-
-    <div class="counseling-modal" id="counselingModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>心理咨询资源</h3>
-                <span class="close-modal">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div class="region-filter">
-                    <select id="counselingRegionSelect">
-                        <option value="">选择地区</option>
-                        <option value="nationwide">全国服务</option>
-                        <option value="beijing">北京</option>
-                        <option value="shanghai">上海</option>
-                        <option value="guangzhou">广州</option>
-                        <option value="shenzhen">深圳</option>
-                        <option value="online">线上咨询</option>
-                    </select>
-                </div>
-                <div class="counselors-list" id="counselorsList">
-                    <!-- 咨询师信息将通过JavaScript动态添加 -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="counseling.js"></script>
-
-    <div class="community-modal" id="communityModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>交流社区</h3>
-                <span class="close-community-modal">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div class="community-search">
-                    <input type="text" id="commentSearch" placeholder="搜索评论...">
-                </div>
-                
-                <form id="commentForm" class="comment-form">
-                    <textarea id="commentInput" placeholder="分享你的想法..." required></textarea>
-                    <button type="submit">发布评论</button>
-                </form>
-
-                <div class="comments-list" id="commentsList">
-                    <!-- 评论将通过JavaScript动态添加 -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="community.js"></script>
-
     <script src="articles.js"></script>
     <script src="suggestions.js"></script>
-
-    <!-- 防身技巧内容 -->
-    <div class="defense-modal" id="defenseModal">
-        <div class="defense-modal-content">
-            <span class="close-defense">&times;</span>
-            <button class="scroll-to-top" id="scrollToTop">↑</button>
-            <div class="defense-content" id="defenseContent">
-                <div class="defense-section">
-                    <h3>一、防身技巧</h3>
-                    <div class="defense-tips">
-                        <div class="tip-category">
-                            <h4>提高警惕，避免危险：</h4>
-                            <ul>
-                                <li><span class="tip-icon">👥</span> 走夜路要结伴：尽量不要单独走夜路，最好和朋友、家人一起。</li>
-                                <li><span class="tip-icon">🌟</span> 选择安全的路线：避免走偏僻、黑暗的街道或小巷。选择灯光明亮、人流量较大的路线。</li>
-                                <li><span class="tip-icon">👀</span> 留意周围环境：注意观察周围是否有可疑人员或异常情况。</li>
-                                <li><span class="tip-icon">🔒</span> 不要轻易透露个人信息：保护好自己的隐私信息。</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="tip-category">
-                            <h4>勇敢应对，争取时间：</h4>
-                            <ul>
-                                <li><span class="tip-icon">📢</span> 大声呼救：遇到危险时，要大声呼救，引起周围人的注意。</li>
-                                <li><span class="tip-icon">🧘‍♀️</span> 保持冷静：尽量保持冷静，不要慌乱。</li>
-                                <li><span class="tip-icon">🎒</span> 使用随身物品：可以利用随身携带的物品进行自卫。</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="defense-section">
-                    <h3>二、防身工具使用建议</h3>
-                    <div class="tools-tips">
-                        <div class="tool-item">
-                            <span class="tool-icon">🔊</span>
-                            <h4>报警器</h4>
-                            <p>可以发出高分贝警报声，引起注意</p>
-                        </div>
-                        <div class="tool-item">
-                            <span class="tool-icon">🔦</span>
-                            <h4>手电筒</h4>
-                            <p>照明和干扰视线的双重作用</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 在其他脚本之前添加地图脚本 -->
     <script src="safety-map.js"></script>
 </body>
 </html> 
