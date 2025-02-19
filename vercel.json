@@ -11,9 +11,5 @@
       "src": "/(.*)",
       "dest": "/$1"
     }
-  ],
-  "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null"
-  }
+  ]
 } 
